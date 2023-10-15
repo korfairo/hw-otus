@@ -1,6 +1,6 @@
 module github.com/korfairo/hw-otus/hw03_frequency_analysis
 
-go 1.21
+go 1.19
 
 require github.com/stretchr/testify v1.7.0
 
