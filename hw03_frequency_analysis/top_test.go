@@ -45,38 +45,50 @@ var text = `Как видите, он  спускается  по  лестни�
 
 func TestTop10(t *testing.T) {
 	t.Run("no words in empty string", func(t *testing.T) {
-		require.Len(t, Top10(""), 0)
+		res, err := Top10(false, "")
+		require.Len(t, res, 0)
+		require.ErrorIs(t, err, EmptyStringErr)
 	})
 
-	t.Run("positive test", func(t *testing.T) {
-		if taskWithAsteriskIsCompleted {
-			expected := []string{
-				"а",         // 8
-				"он",        // 8
-				"и",         // 6
-				"ты",        // 5
-				"что",       // 5
-				"в",         // 4
-				"его",       // 4
-				"если",      // 4
-				"кристофер", // 4
-				"не",        // 4
-			}
-			require.Equal(t, expected, Top10(text))
-		} else {
-			expected := []string{
-				"он",        // 8
-				"а",         // 6
-				"и",         // 6
-				"ты",        // 5
-				"что",       // 5
-				"-",         // 4
-				"Кристофер", // 4
-				"если",      // 4
-				"не",        // 4
-				"то",        // 4
-			}
-			require.Equal(t, expected, Top10(text))
+	t.Run("too few words", func(t *testing.T) {
+		res, err := Top10(false, "one two three four five six seven eight")
+		require.Len(t, res, 0)
+		require.ErrorIs(t, err, TooFewWordsErr)
+	})
+
+	t.Run("positive test without fuzzy search", func(t *testing.T) {
+		expected := []string{
+			"он",        // 8
+			"а",         // 6
+			"и",         // 6
+			"ты",        // 5
+			"что",       // 5
+			"-",         // 4
+			"Кристофер", // 4
+			"если",      // 4
+			"не",        // 4
+			"то",        // 4
 		}
+		res, err := Top10(false, text)
+		require.Equal(t, expected, res)
+		require.NoError(t, err)
+	})
+
+	t.Run("positive test with fuzzy search", func(t *testing.T) {
+		expected := []string{
+			"а",         // 8
+			"он",        // 8
+			"и",         // 6
+			"ты",        // 5
+			"что",       // 5
+			"в",         // 4
+			"его",       // 4
+			"если",      // 4
+			"кристофер", // 4
+			"не",        // 4
+		}
+		res, err := Top10(true, text)
+		require.Equal(t, expected, res)
+		require.NoError(t, err)
 	})
 }
