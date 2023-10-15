@@ -44,13 +44,13 @@ func TestTop10(t *testing.T) {
 	t.Run("no words in empty string", func(t *testing.T) {
 		res, err := Top10(false, "")
 		require.Len(t, res, 0)
-		require.ErrorIs(t, err, EmptyStringErr)
+		require.ErrorIs(t, err, ErrEmptyString)
 	})
 
 	t.Run("too few words", func(t *testing.T) {
 		res, err := Top10(false, "one two three four five six seven eight")
 		require.Len(t, res, 0)
-		require.ErrorIs(t, err, TooFewWordsErr)
+		require.ErrorIs(t, err, ErrTooFewWordsErr)
 	})
 
 	t.Run("positive test without fuzzy search", func(t *testing.T) {
