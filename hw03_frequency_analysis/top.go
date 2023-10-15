@@ -93,7 +93,7 @@ func trimEdgePunctuationMarks(s string) string {
 
 func mapKeysToSlice[T interface{}](m map[string]T) []string {
 	slice := make([]string, 0, len(m))
-	for key, _ := range m {
+	for key := range m {
 		slice = append(slice, key)
 	}
 	return slice
