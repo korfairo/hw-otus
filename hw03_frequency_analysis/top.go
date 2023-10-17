@@ -13,18 +13,17 @@ var (
 
 var punctuationMarks = []rune{',', '.', '!', '-'}
 
-func Top10(fuzzySearch bool, s string) ([]string, error) {
+func Top10(s string) []string {
 	if s == "" {
-		return []string{}, ErrEmptyString
+		panic(ErrEmptyString)
 	}
 
 	words := strings.Fields(s)
-
 	if len(words) < 10 {
-		return []string{}, ErrTooFewWordsErr
+		panic(ErrTooFewWordsErr)
 	}
 
-	wordsToCountMap := countFrequency(fuzzySearch, words)
+	wordsToCountMap := countFrequency(words)
 
 	uniqueWords := mapKeysToSlice(wordsToCountMap)
 	sort.SliceStable(uniqueWords, func(i, j int) bool {
@@ -34,22 +33,22 @@ func Top10(fuzzySearch bool, s string) ([]string, error) {
 		return uniqueWords[i] < uniqueWords[j]
 	})
 
-	return uniqueWords[:10], nil
+	if len(uniqueWords) > 10 {
+		return uniqueWords[:10]
+	}
+	return uniqueWords
 }
 
 // countFrequency returns map with words as keys and their counts as values.
-func countFrequency(fuzzySearch bool, words []string) map[string]int {
+func countFrequency(words []string) map[string]int {
 	wordsToCount := make(map[string]int, len(words))
 	for _, word := range words {
-		if fuzzySearch {
-			word = trimEdgePunctuationMarks(word)
-
-			if word == "" {
-				continue
-			}
-
-			word = strings.ToLower(word)
+		word = trimEdgePunctuationMarks(word)
+		if word == "" {
+			continue
 		}
+
+		word = strings.ToLower(word)
 
 		wordsToCount[word]++
 	}
