@@ -44,17 +44,17 @@ var text = `Как видите, он  спускается  по  лестни�
 		В этот вечер...`
 
 var text2 = `Vor dem Gesetz steht ein Türhüter.
-Zu diesem Türhüter kommt ein Mann vom Lande und bittet um Eintritt in das Gesetz.
-Aber der Türhüter sagt, daß er ihm jetzt den Eintritt nicht gewähren könne.
-Der Mann überlegt und fragt dann, ob er also später werde eintreten dürfen.»
-Es ist möglich«, sagt der Türhüter, »jetzt aber nicht.«
-Da das Tor zum Gesetz offensteht wie immer und der Türhüter beiseite tritt,
-bückt sich der Mann, um durch das Tor in das Innere zu sehn. Als der Türhüter das merkt,
-lacht er und sagt:
-»Wenn es dich so lockt, versuche es doch, trotz meines Verbotes hineinzugehn.
-Merke aber: Ich bin mächtig. Und ich bin nur der unterste Türhüter.
-Von Saal zu Saal stehn aber Türhüter, einer mächtiger als der andere.
-Schon den Anblick des dritten kam nicht einmal ich mehr ertragen.«`
+	Zu diesem Türhüter kommt ein Mann vom Lande und bittet um Eintritt in das Gesetz.
+	Aber der Türhüter sagt, daß er ihm jetzt den Eintritt nicht gewähren könne.
+	Der Mann überlegt und fragt dann, ob er also später werde eintreten dürfen.»
+	Es ist möglich«, sagt der Türhüter, »jetzt aber nicht.«
+	Da das Tor zum Gesetz offensteht wie immer und der Türhüter beiseite tritt,
+	bückt sich der Mann, um durch das Tor in das Innere zu sehn. Als der Türhüter das merkt,
+	lacht er und sagt:
+	»Wenn es dich so lockt, versuche es doch, trotz meines Verbotes hineinzugehn.
+	Merke aber: Ich bin mächtig. Und ich bin nur der unterste Türhüter.
+	Von Saal zu Saal stehn aber Türhüter, einer mächtiger als der andere.
+	Schon den Anblick des dritten kam nicht einmal ich mehr ertragen.«`
 
 func TestTop10(t *testing.T) {
 	t.Run("no words in empty string", func(t *testing.T) {

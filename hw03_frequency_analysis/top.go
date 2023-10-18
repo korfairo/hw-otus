@@ -26,6 +26,7 @@ func Top10(s string) []string {
 	wordsToCountMap := countFrequency(words)
 
 	uniqueWords := mapKeysToSlice(wordsToCountMap)
+
 	sort.SliceStable(uniqueWords, func(i, j int) bool {
 		if wordsToCountMap[uniqueWords[i]] != wordsToCountMap[uniqueWords[j]] {
 			return wordsToCountMap[uniqueWords[i]] > wordsToCountMap[uniqueWords[j]]
@@ -47,9 +48,7 @@ func countFrequency(words []string) map[string]int {
 		if word == "" {
 			continue
 		}
-
 		word = strings.ToLower(word)
-
 		wordsToCount[word]++
 	}
 	return wordsToCount
@@ -78,7 +77,6 @@ func trimEdgePunctuationMarks(s string) string {
 		if lastRuneIdx == 0 {
 			return ""
 		}
-
 		runes = runes[1:]
 		lastRuneIdx--
 	}
