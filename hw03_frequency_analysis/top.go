@@ -11,7 +11,7 @@ var (
 	ErrTooFewWordsErr = errors.New("the string contains less than 10 words separated by space")
 )
 
-var punctuationMarks = []rune{',', '.', '!', '-'}
+var punctuationMarks = []rune{',', '.', '!', '-', '»', '«', ':', '?', ')', '('}
 
 func Top10(s string) []string {
 	if s == "" {
