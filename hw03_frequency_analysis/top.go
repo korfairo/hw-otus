@@ -1,27 +1,13 @@
 package hw03frequencyanalysis
 
 import (
-	"errors"
 	"sort"
 	"strings"
+	"unicode"
 )
-
-var (
-	ErrEmptyString    = errors.New("the string is empty")
-	ErrTooFewWordsErr = errors.New("the string contains less than 10 words separated by space")
-)
-
-var punctuationMarks = []rune{',', '.', '!', '-', '»', '«', ':', '?', ')', '('}
 
 func Top10(s string) []string {
-	if s == "" {
-		panic(ErrEmptyString)
-	}
-
 	words := strings.Fields(s)
-	if len(words) < 10 {
-		panic(ErrTooFewWordsErr)
-	}
 
 	wordsToCountMap := countFrequency(words)
 
@@ -54,16 +40,6 @@ func countFrequency(words []string) map[string]int {
 	return wordsToCount
 }
 
-// isPunctuationMark checks if the rune is a punctuation mark, declared in punctuationMarks global variable.
-func isPunctuationMark(r rune) bool {
-	for _, mark := range punctuationMarks {
-		if mark == r {
-			return true
-		}
-	}
-	return false
-}
-
 // trimEdgePunctuationMarks trims punctuation marks in the first and the last position in the string.
 func trimEdgePunctuationMarks(s string) string {
 	if s == "" {
@@ -73,7 +49,7 @@ func trimEdgePunctuationMarks(s string) string {
 	runes := []rune(s)
 	lastRuneIdx := len(runes) - 1
 
-	if isPunctuationMark(runes[0]) {
+	if unicode.IsPunct(runes[0]) {
 		if lastRuneIdx == 0 {
 			return ""
 		}
@@ -81,7 +57,7 @@ func trimEdgePunctuationMarks(s string) string {
 		lastRuneIdx--
 	}
 
-	if isPunctuationMark(runes[lastRuneIdx]) {
+	if unicode.IsPunct(runes[lastRuneIdx]) {
 		runes = runes[:lastRuneIdx]
 	}
 

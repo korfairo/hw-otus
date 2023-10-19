@@ -58,15 +58,16 @@ var text2 = `Vor dem Gesetz steht ein Türhüter.
 
 func TestTop10(t *testing.T) {
 	t.Run("no words in empty string", func(t *testing.T) {
-		require.PanicsWithError(t, ErrEmptyString.Error(), func() {
-			Top10("")
-		})
+		require.Equal(t, []string{}, Top10(""))
 	})
 
-	t.Run("too few words", func(t *testing.T) {
-		require.PanicsWithError(t, ErrTooFewWordsErr.Error(), func() {
-			Top10("one two three four five six seven eight")
-		})
+	t.Run("less then 10 words", func(t *testing.T) {
+		expected := []string{
+			"one",   // 1
+			"three", // 1
+			"two",   // 1
+		}
+		require.Equal(t, expected, Top10("one two three"))
 	})
 
 	t.Run("positive test #1", func(t *testing.T) {
