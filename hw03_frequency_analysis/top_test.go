@@ -7,7 +7,7 @@ import (
 )
 
 // Change to true if needed.
-var taskWithAsteriskIsCompleted = false
+var taskWithAsteriskIsCompleted = true
 
 var text = `Как видите, он  спускается  по  лестнице  вслед  за  своим
 	другом   Кристофером   Робином,   головой   вниз,  пересчитывая
@@ -43,12 +43,34 @@ var text = `Как видите, он  спускается  по  лестни�
 	посидеть у огня и послушать какую-нибудь интересную сказку.
 		В этот вечер...`
 
+var text2 = `Vor dem Gesetz steht ein Türhüter.
+	Zu diesem Türhüter kommt ein Mann vom Lande und bittet um Eintritt in das Gesetz.
+	Aber der Türhüter sagt, daß er ihm jetzt den Eintritt nicht gewähren könne.
+	Der Mann überlegt und fragt dann, ob er also später werde eintreten dürfen.»
+	Es ist möglich«, sagt der Türhüter, »jetzt aber nicht.«
+	Da das Tor zum Gesetz offensteht wie immer und der Türhüter beiseite tritt,
+	bückt sich der Mann, um durch das Tor in das Innere zu sehn. Als der Türhüter das merkt,
+	lacht er und sagt:
+	»Wenn es dich so lockt, versuche es doch, trotz meines Verbotes hineinzugehn.
+	Merke aber: Ich bin mächtig. Und ich bin nur der unterste Türhüter.
+	Von Saal zu Saal stehn aber Türhüter, einer mächtiger als der andere.
+	Schon den Anblick des dritten kam nicht einmal ich mehr ertragen.«`
+
 func TestTop10(t *testing.T) {
 	t.Run("no words in empty string", func(t *testing.T) {
-		require.Len(t, Top10(""), 0)
+		require.Equal(t, []string{}, Top10(""))
 	})
 
-	t.Run("positive test", func(t *testing.T) {
+	t.Run("less then 10 words", func(t *testing.T) {
+		expected := []string{
+			"one",   // 1
+			"three", // 1
+			"two",   // 1
+		}
+		require.Equal(t, expected, Top10("one two three"))
+	})
+
+	t.Run("positive test #1", func(t *testing.T) {
 		if taskWithAsteriskIsCompleted {
 			expected := []string{
 				"а",         // 8
@@ -77,6 +99,24 @@ func TestTop10(t *testing.T) {
 				"то",        // 4
 			}
 			require.Equal(t, expected, Top10(text))
+		}
+	})
+
+	t.Run("positive test #2", func(t *testing.T) {
+		if taskWithAsteriskIsCompleted {
+			expected := []string{
+				"der",      // 8
+				"türhüter", // 8
+				"das",      // 5
+				"und",      // 5
+				"aber",     // 4
+				"er",       // 3
+				"es",       // 3
+				"gesetz",   // 3
+				"ich",      // 3
+				"mann",     // 3
+			}
+			require.Equal(t, expected, Top10(text2))
 		}
 	})
 }
