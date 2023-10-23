@@ -15,6 +15,53 @@ func TestList(t *testing.T) {
 		require.Nil(t, l.Back())
 	})
 
+	t.Run("pushFront()", func(t *testing.T) {
+		l := NewList()
+		l.PushFront(1)
+		l.PushFront("2")
+		l.PushFront(true)
+		l.PushFront(3.14)
+
+		require.Equal(t, 3.14, l.Front().Value)
+		require.Equal(t, true, l.Front().Next.Value)
+		require.Equal(t, "2", l.Back().Prev.Value)
+		require.Equal(t, 1, l.Back().Value)
+	})
+
+	t.Run("pushBack()", func(t *testing.T) {
+		l := NewList()
+		l.PushBack(1)
+		l.PushBack("2")
+		l.PushBack(true)
+		l.PushBack(3.14)
+
+		require.Equal(t, 3.14, l.Back().Value)
+		require.Equal(t, true, l.Back().Prev.Value)
+		require.Equal(t, "2", l.Front().Next.Value)
+		require.Equal(t, 1, l.Front().Value)
+	})
+
+	t.Run("len()", func(t *testing.T) {
+		l := NewList()
+		l.PushFront("1")
+		l.PushFront("2")
+		l.PushBack("3")
+		l.PushBack("4")
+
+		require.Equal(t, 4, l.Len())
+	})
+
+	t.Run("remove()", func(t *testing.T) {
+		l := NewList()
+		l.PushFront("1")
+		l.PushFront("2")
+		l.PushBack("3")
+		l.PushBack("4")
+		l.Remove(l.Front().Next)
+
+		require.Equal(t, 3, l.Len())
+	})
+
 	t.Run("complex", func(t *testing.T) {
 		l := NewList()
 

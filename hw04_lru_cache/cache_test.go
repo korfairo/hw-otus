@@ -49,8 +49,78 @@ func TestCache(t *testing.T) {
 		require.Nil(t, val)
 	})
 
-	t.Run("purge logic", func(t *testing.T) {
-		// Write me
+	t.Run("purge logic, overflow", func(t *testing.T) {
+		c := NewCache(3)
+
+		wasInCache := c.Set("first", 100)
+		require.False(t, wasInCache)
+
+		wasInCache = c.Set("second", 200)
+		require.False(t, wasInCache)
+
+		wasInCache = c.Set("third", 300)
+		require.False(t, wasInCache)
+
+		wasInCache = c.Set("fourth", 400)
+		require.False(t, wasInCache)
+
+		val, ok := c.Get("first")
+		require.False(t, ok)
+		require.Equal(t, nil, val)
+
+		val, ok = c.Get("second")
+		require.True(t, ok)
+		require.Equal(t, 200, val)
+
+		val, ok = c.Get("third")
+		require.True(t, ok)
+		require.Equal(t, 300, val)
+
+		val, ok = c.Get("fourth")
+		require.True(t, ok)
+		require.Equal(t, 400, val)
+	})
+
+	t.Run("purge logic, old values", func(t *testing.T) {
+		c := NewCache(3)
+
+		wasInCache := c.Set("first", 100)
+		require.False(t, wasInCache)
+
+		wasInCache = c.Set("second", 200)
+		require.False(t, wasInCache)
+
+		wasInCache = c.Set("third", 300)
+		require.False(t, wasInCache)
+
+		// Use first and second values.
+		val, ok := c.Get("first")
+		require.True(t, ok)
+		require.Equal(t, 100, val)
+
+		val, ok = c.Get("second")
+		require.True(t, ok)
+		require.Equal(t, 200, val)
+
+		// Third value is now the oldest and will be purged the next time another value is added.
+		wasInCache = c.Set("fourth", 400)
+		require.False(t, wasInCache)
+
+		val, ok = c.Get("first")
+		require.True(t, ok)
+		require.Equal(t, 100, val)
+
+		val, ok = c.Get("second")
+		require.True(t, ok)
+		require.Equal(t, 200, val)
+
+		val, ok = c.Get("third")
+		require.False(t, ok)
+		require.Equal(t, nil, val)
+
+		val, ok = c.Get("fourth")
+		require.True(t, ok)
+		require.Equal(t, 400, val)
 	})
 }
 
