@@ -2,7 +2,11 @@ package main
 
 import (
 	"flag"
+	"fmt"
+	"log"
 )
+
+const serviceName = "go-cp"
 
 var (
 	from, to      string
@@ -18,5 +22,20 @@ func init() {
 
 func main() {
 	flag.Parse()
-	// Place your code here.
+
+	l := log.Logger{}
+	l.SetPrefix(fmt.Sprintf("%s:", serviceName))
+
+	if from == "" {
+		l.Println("missing --from operand")
+		return
+	}
+
+	if to == "" {
+		l.Println("missing --to operand")
+	}
+
+	if err := Copy(from, to, offset, limit); err != nil {
+		l.Println("failed to copy:", err)
+	}
 }
