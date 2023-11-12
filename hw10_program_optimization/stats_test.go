@@ -6,11 +6,11 @@ package hw10programoptimization
 import (
 	"bytes"
 	"fmt"
-	"github.com/stretchr/testify/assert"
 	"io"
 	"reflect"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
