@@ -10,7 +10,6 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -105,10 +104,17 @@ func TestTableGetDomainStat(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			gotDomainStat, gotErr := GetDomainStat(tt.args.r, tt.args.domain)
-			assert.ErrorIs(t, gotErr, tt.wantErr)
+			require.ErrorIs(t, gotErr, tt.wantErr)
 
-			assert.True(t, reflect.DeepEqual(gotDomainStat, tt.wantDomainStat),
+			require.True(t, reflect.DeepEqual(gotDomainStat, tt.wantDomainStat),
 				fmt.Sprintf("GetDomainStat() got = %v, want %v", gotDomainStat, tt.wantDomainStat))
 		})
+	}
+}
+
+func BenchmarkGetDomainStat(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		_, err := GetDomainStat(bytes.NewBufferString(data), "com")
+		require.NoError(b, err)
 	}
 }
