@@ -3,6 +3,7 @@ package hw09structvalidator
 import (
 	"errors"
 	"fmt"
+	"strings"
 )
 
 var (
@@ -26,10 +27,9 @@ type ValidationError struct {
 type ValidationErrors []ValidationError
 
 func (v ValidationErrors) Error() string {
-	var errs []error
-	for _, valErr := range v {
-		err := fmt.Errorf("field: %s, err : %w", valErr.Field, valErr.Err)
-		errs = append(errs, err)
+	var sb strings.Builder
+	for _, ve := range v {
+		sb.WriteString(fmt.Sprintf("%s: %s\n", ve.Field, ve.Err.Error()))
 	}
-	return errors.Join(errs...).Error()
+	return sb.String()
 }
