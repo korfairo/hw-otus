@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"flag"
-	"github.com/pkg/errors"
 	"io"
 	"log"
 	"net"
@@ -11,6 +10,8 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 const updateInterval = time.Millisecond * 10
@@ -55,13 +56,8 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	senderErrCh := doWithInterval(ctx, updateInterval, func() error {
-		return client.Send()
-	})
-
-	receiverErrCh := doWithInterval(ctx, updateInterval, func() error {
-		return client.Receive()
-	})
+	senderErrCh := doWithInterval(ctx, updateInterval, client.Send)
+	receiverErrCh := doWithInterval(ctx, updateInterval, client.Receive)
 
 	go processErrors(ctx, logger, senderErrCh, receiverErrCh)
 
