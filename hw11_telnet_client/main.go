@@ -98,10 +98,12 @@ func processErrors(ctx context.Context, logger *log.Logger, senderErrCh, receive
 		case err := <-senderErrCh:
 			if errors.Is(err, io.EOF) {
 				logger.Fatal("EOF")
+				return
 			}
 		case err := <-receiverErrCh:
 			if errors.Is(err, io.EOF) {
 				logger.Fatal("Connection was closed by peer")
+				return
 			}
 		}
 	}
