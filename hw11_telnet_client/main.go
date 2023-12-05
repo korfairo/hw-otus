@@ -14,8 +14,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-const updateInterval = time.Millisecond * 10
-
 var (
 	timeout time.Duration
 	host    string
@@ -53,58 +51,39 @@ func main() {
 	defer client.Close()
 	logger.Println("Connected to", address)
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT, os.Interrupt)
 	defer cancel()
 
-	senderErrCh := doWithInterval(ctx, updateInterval, client.Send)
-	receiverErrCh := doWithInterval(ctx, updateInterval, client.Receive)
-
-	go processErrors(ctx, logger, senderErrCh, receiverErrCh)
-
-	quitCh := make(chan os.Signal, 1)
-	signal.Notify(quitCh, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGHUP)
-	<-quitCh
-}
-
-func doWithInterval(ctx context.Context, interval time.Duration, f func() error) chan error {
-	errCh := make(chan error)
-
 	go func() {
-		defer close(errCh)
-
-		ticker := time.NewTicker(interval)
-		defer ticker.Stop()
-
 		for {
 			select {
 			case <-ctx.Done():
 				return
-			case <-ticker.C:
-				if err := f(); err != nil {
-					errCh <- err
+			default:
+				err := client.Send()
+				if err != nil && errors.Is(err, io.EOF) {
+					logger.Fatal("EOF")
+					return
+				}
+
+			}
+		}
+	}()
+
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			default:
+				err := client.Receive()
+				if err != nil && errors.Is(err, io.EOF) {
+					logger.Fatal("Connection was closed by peer")
+					return
 				}
 			}
 		}
 	}()
 
-	return errCh
-}
-
-func processErrors(ctx context.Context, logger *log.Logger, senderErrCh, receiverErrCh chan error) {
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case err := <-senderErrCh:
-			if errors.Is(err, io.EOF) {
-				logger.Fatal("EOF")
-				return
-			}
-		case err := <-receiverErrCh:
-			if errors.Is(err, io.EOF) {
-				logger.Fatal("Connection was closed by peer")
-				return
-			}
-		}
-	}
+	<-ctx.Done()
 }
