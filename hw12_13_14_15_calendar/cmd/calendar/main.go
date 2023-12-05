@@ -3,21 +3,21 @@ package main
 import (
 	"context"
 	"flag"
-	"os"
+	"fmt"
 	"os/signal"
 	"syscall"
-	"time"
 
-	"github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/app"
-	"github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/logger"
-	internalhttp "github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/server/http"
-	memorystorage "github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/storage/memory"
+	"github.com/korfairo/hw-otus/hw12_13_14_15_calendar/internal/app"
+	"github.com/korfairo/hw-otus/hw12_13_14_15_calendar/internal/logger"
+	internalhttp "github.com/korfairo/hw-otus/hw12_13_14_15_calendar/internal/server/http"
+	memorystorage "github.com/korfairo/hw-otus/hw12_13_14_15_calendar/internal/storage/memory"
+	sqlstorage "github.com/korfairo/hw-otus/hw12_13_14_15_calendar/internal/storage/sql"
 )
 
-var configFile string
+var configFilePath string
 
 func init() {
-	flag.StringVar(&configFile, "config", "/etc/calendar/config.toml", "Path to configuration file")
+	flag.StringVar(&configFilePath, "config", "configs/config.toml", "Path to configuration file")
 }
 
 func main() {
@@ -28,34 +28,49 @@ func main() {
 		return
 	}
 
-	config := NewConfig()
-	logg := logger.New(config.Logger.Level)
+	cfg, err := NewConfig(configFilePath)
+	if err != nil {
+		fmt.Println("failed to init config:", err.Error())
+		return
+	}
 
-	storage := memorystorage.New()
-	calendar := app.New(logg, storage)
-
-	server := internalhttp.NewServer(logg, calendar)
+	log, err := logger.New(logger.Config{
+		Level: cfg.Logger.Level,
+	})
+	if err != nil {
+		fmt.Println("failed to init logger:", err.Error())
+		return
+	}
 
 	ctx, cancel := signal.NotifyContext(context.Background(),
 		syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
 	defer cancel()
 
-	go func() {
-		<-ctx.Done()
-
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
-		defer cancel()
-
-		if err := server.Stop(ctx); err != nil {
-			logg.Error("failed to stop http server: " + err.Error())
+	var storage app.Storage
+	if cfg.Storage.Memory {
+		storage = memorystorage.New()
+	} else {
+		extStorage := sqlstorage.New(cfg.Storage.PostgresDSN)
+		if err = extStorage.Connect(ctx); err != nil {
+			log.
+				WithError(err).
+				WithField("DSN", cfg.Storage.PostgresDSN).
+				Fatal("couldn't connect to PostgreSQL DB")
 		}
-	}()
+		defer extStorage.Close()
+		storage = extStorage
+	}
 
-	logg.Info("calendar is running...")
+	calendar := app.New(storage, log)
 
+	log.Info("calendar is running...")
+
+	server := internalhttp.NewServer(cfg.Server.Host, cfg.Server.Port, calendar, log)
 	if err := server.Start(ctx); err != nil {
-		logg.Error("failed to start http server: " + err.Error())
-		cancel()
-		os.Exit(1) //nolint:gocritic
+		log.WithError(err).Fatal("failed to start http server")
+	}
+
+	if err := server.Stop(ctx); err != nil {
+		log.WithError(err).Error("failed to stop http server")
 	}
 }
